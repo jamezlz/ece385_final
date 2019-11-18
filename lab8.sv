@@ -48,8 +48,10 @@ module lab8( input               CLOCK_50,
     
     logic Reset_h, Clk;
     logic [7:0] keycode;
-	 logic [9:0] DrawX, DrawY;
-	 logic isball;
+	 logic [9:0] DrawX, DrawY, sprite_x, sprite_y;
+	 logic [7:0] color_in, color_out;
+	 logic frame_we;
+	 logic [18:0] read_address, write_address;
     
     assign Clk = CLOCK_50;
     always_ff @ (posedge Clk) begin
@@ -113,13 +115,17 @@ module lab8( input               CLOCK_50,
     VGA_controller vga_controller_instance(.*,.Reset(reset_h));
     
     // Which signal should be frame_clk?		
-    ball ball_instance(.Clk(Clk),.Reset(reset_h),.keycode(keycode),.frame_clk(VGA_VS),.DrawX(DrawX),.DrawY(DrawY),.is_ball(isball));
+    ball ball_instance(.Clk(Clk),.Reset(reset_h),.keycode(keycode),.frame_clk(VGA_VS),.DrawX(DrawX),.DrawY(DrawY),.is_ball(isball),.Ball_X_Pos(sprite_x),.Ball_Y_Pos(sprite_y));
     
-    color_mapper color_instance(.is_ball(isball),.DrawX(DrawX), .DrawY(DrawY),.*);
+    color_mapper color_instance(.color(color_out),.DrawX(DrawX), .DrawY(DrawY),.*);
+	 
+	 frame_buffer buff(.q(color_out),.d(color_in),.write_address,.read_address,.we(frame_we),.clk(Clk));
+	 
+	 frame_writer write(.clk(Clk), .r(Reset_h),.we(frame_we),.addr(write_address),.color(color_in),.*);
     
     // Display keycode on hex display
-    HexDriver hex_inst_0 (keycode[3:0], HEX0);
-    HexDriver hex_inst_1 (keycode[7:4], HEX1);
+    HexDriver hex_inst_0 (sprite_x[3:0], HEX0);
+    HexDriver hex_inst_1 (sprite_x[7:4], HEX1);
     
     /**************************************************************************************
         ATTENTION! Please answer the following quesiton in your lab report! Points will be allocated for the answers!

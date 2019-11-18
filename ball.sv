@@ -19,7 +19,8 @@ module  ball ( input         Clk,                // 50 MHz clock
                              frame_clk,          // The clock indicating a new frame (~60Hz)
 					input[7:0]    keycode,
                input [9:0]   DrawX, DrawY,       // Current pixel coordinates
-               output logic  is_ball             // Whether current pixel belongs to ball or background
+               output logic  is_ball,             // Whether current pixel belongs to ball or background
+					output logic [9:0] Ball_X_Pos, Ball_Y_Pos
               );
     
     parameter [9:0] Ball_X_Center = 10'd320;  // Center position on the X axis
@@ -32,7 +33,7 @@ module  ball ( input         Clk,                // 50 MHz clock
     parameter [9:0] Ball_Y_Step = 10'd1;      // Step size on the Y axis
     parameter [9:0] Ball_Size = 10'd4;        // Ball size
     
-    logic [9:0] Ball_X_Pos, Ball_X_Motion, Ball_Y_Pos, Ball_Y_Motion;
+    logic [9:0] Ball_X_Motion, Ball_Y_Motion;
     logic [9:0] Ball_X_Pos_in, Ball_X_Motion_in, Ball_Y_Pos_in, Ball_Y_Motion_in;
     
     //////// Do not modify the always_ff blocks. ////////
