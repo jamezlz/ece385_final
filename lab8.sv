@@ -43,8 +43,14 @@ module lab8( input               CLOCK_50,
                                  DRAM_CKE,     //SDRAM Clock Enable
                                  DRAM_WE_N,    //SDRAM Write Enable
                                  DRAM_CS_N,    //SDRAM Chip Select
-                                 DRAM_CLK      //SDRAM Clock
+                                 DRAM_CLK,      //SDRAM Clock
+				input logic [15:0]   SRAM_DQ,
+				output logic SRAM_UB_N, SRAM_LB_N, SRAM_CE_N, SRAM_OE_N,
+				output logic [19:0] SRAM_ADDR
                     );
+						  
+	assign SRAM_OE_N = 1'b0;
+	assign SRAM_CE_N = 1'b0;
     
     logic Reset_h, Clk;
     logic [7:0] keycode;
@@ -121,11 +127,11 @@ module lab8( input               CLOCK_50,
 	 
 	 frame_buffer buff(.q(color_out),.d(color_in),.write_address,.read_address,.we(frame_we),.clk(Clk));
 	 
-	 frame_writer write(.clk(Clk), .r(Reset_h),.we(frame_we),.addr(write_address),.color(color_in),.*);
+	 frame_writer write(.clk(Clk), .r(Reset_h),.we(frame_we),.addr(write_address),.color(color_in),.*,.SR_DATA(SRAM_DQ[7:0]&SRAM_DQ[15:8]),.SR_ADDR(SRAM_ADDR),.UB(SRAM_UB_N),.LB(SRAM_LB_N));
     
     // Display keycode on hex display
-    HexDriver hex_inst_0 (sprite_x[3:0], HEX0);
-    HexDriver hex_inst_1 (sprite_x[7:4], HEX1);
+    HexDriver hex_inst_0 (SRAM_DQ[3:0], HEX0);
+    HexDriver hex_inst_1 (SRAM_DQ[11:8], HEX1);
     
     /**************************************************************************************
         ATTENTION! Please answer the following quesiton in your lab report! Points will be allocated for the answers!

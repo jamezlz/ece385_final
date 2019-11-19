@@ -1,7 +1,9 @@
 module frame_writer(input logic clk, r,
 							input logic [9:0] DrawX,DrawY,sprite_x,sprite_y,
-							output logic we,
+							output logic we, LB, UB,
 							output logic [18:0] addr,
+							output logic [19:0] SR_ADDR,
+							input logic [7:0] SR_DATA,
 							output logic [7:0] color);
 							
 	 logic thing;
@@ -28,15 +30,21 @@ module frame_writer(input logic clk, r,
 		we = 1'b0;
 		addr = 19'b0;
 		color = 8'b0;
+		SR_ADDR = 20'b0;
+		UB = 1;
+		LB = 1;
 		if (y >= 10'd1 && y <= 10'd480 && x < 640 ) begin
-			addr = x + y*X_Size;
+			addr = x + (y-1)*X_Size;
 			we = 1'b1;
-			color = 8'b11100000;
+			color = SR_DATA;
+			SR_ADDR = addr[18:1];
+			UB = ~addr[0];
+			LB = addr[0];
 		end
 		if (y == 10'd481 && thing < 100) begin
 			addr = sprite_x + sd_x + (y_thing)*X_Size;
 			we = 1'b1;
-			color = 8'b00000011;
+			color = 8'b00011100;
 		end
 	end
 	
