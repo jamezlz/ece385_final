@@ -52,6 +52,7 @@ module lab8( input               CLOCK_50,
 	assign SRAM_OE_N = 1'b0;
 	assign SRAM_CE_N = 1'b0;
     
+	 logic [3:0] flag;
     logic Reset_h, Clk;
     logic [7:0] keycode;
 	 logic [9:0] DrawX, DrawY, sprite_x, sprite_y;
@@ -62,6 +63,10 @@ module lab8( input               CLOCK_50,
     assign Clk = CLOCK_50;
     always_ff @ (posedge Clk) begin
         Reset_h <= ~(KEY[0]);        // The push buttons are active low
+		  if (~(KEY[0]))
+				flag <= 4'b0;
+		  else if ((SRAM_DQ[7:0]&SRAM_DQ[15:8]) == 8'b0)
+				flag <= 4'b1111;
     end
     
     logic [1:0] hpi_addr;
@@ -130,7 +135,7 @@ module lab8( input               CLOCK_50,
 	 frame_writer write(.clk(Clk), .r(Reset_h),.we(frame_we),.addr(write_address),.color(color_in),.*,.SR_DATA(SRAM_DQ[7:0]&SRAM_DQ[15:8]),.SR_ADDR(SRAM_ADDR),.UB(SRAM_UB_N),.LB(SRAM_LB_N));
     
     // Display keycode on hex display
-    HexDriver hex_inst_0 (SRAM_DQ[3:0], HEX0);
+    HexDriver hex_inst_0 (flag, HEX0);
     HexDriver hex_inst_1 (SRAM_DQ[11:8], HEX1);
     
     /**************************************************************************************
